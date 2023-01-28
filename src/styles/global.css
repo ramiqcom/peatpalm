@@ -1,0 +1,54 @@
+@import '../../node_modules/leaflet/dist/leaflet.css';
+@import '../../node_modules/leaflet-draw/dist/leaflet.draw.css';
+
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+* {
+    font-family: 'Open Sans', sans-serif;
+}
+
+.column {
+    display: flex;
+}
+
+.side {
+    width: 15%;
+}
+
+.frame {
+    width: 100%;
+    color: #696969;
+    background-color: whitesmoke;
+    height: 5%;
+}
+
+.section {
+    margin: 5%;
+}
+
+.input {
+    width: 100%;
+    height: 4vh;
+    font-size: medium;
+}
+
+#map {
+    width: 70%;
+}
+
+#home {
+    height: 90%;
+}
+
+#header {
+    border-bottom: 1px solid lightgray;
+    font-size: x-large;
+    font-weight: 500;
+}
+
+#footer {
+    border-top: 1px solid lightgray;
+    font-size: medium;
+    font-weight: 300;
+    text-align: center;
+}
