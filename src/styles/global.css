@@ -32,6 +32,10 @@
     font-size: medium;
 }
 
+.upload {
+    margin: 5% auto;
+}
+
 #map {
     width: 70%;
 }

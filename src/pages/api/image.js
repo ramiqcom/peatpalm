@@ -18,16 +18,40 @@ export default function handler (req, res) {
     );
 
 		function init(){
-			new Promise((resolve, reject) => resolve(req.body))
-				.then(json => ee.FeatureCollection(json))
-				.then(features => features.geometry())
-				.then(geometry => ee.Image('projects/ee-ramiqcom-asean/assets/landsat/landsat_sumatera_2020').clip(geometry))
-				.then(image => stretch(image, ['B5', 'B6', 'B2'], 0.1, 99.9, 30).evaluate(vis => image.getMap(vis, data => res.status(200).send(data))))
-				.catch(err => res.status(404).send({ message: err }));
+      // Import data
+      const l8 = ee.ImageCollection("LANDSAT/LC08/C02/T1_L2");
+      const l9 = ee.ImageCollection("LANDSAT/LC09/C02/T1_L2");
+
+      // AOI
+      const aoi = ee.FeatureCollection(req.body).geometry();
+
+      const l8Filter = l8.filterBounds(aoi).filterDate('2022-01-01', '2022-12-31');
+      const l9Filter = l9.filterBounds(aoi).filterDate('2022-01-01', '2022-12-31');
+      const col = l8Filter.merge(l9Filter).map(cloudMask);
+      const image = col.median().clip(aoi);
+
+      stretch(image, ['SR_B5', 'SR_B6', 'SR_B2'])
+        .evaluate(vis => image.getMap(vis, map => res.status(200).send(map)));
 		}
 
+    // Function for cloud mask
+    function cloudMask (image) {
+      const qa = image.select('QA_PIXEL');
+      const dilated = 1 << 1;
+      const cirrus = 1 << 2;
+      const cloud = 1 << 3;
+      const shadow = 1 << 4;
+
+      const mask = qa.bitwiseAnd(dilated).eq(0)
+        .and(qa.bitwiseAnd(cirrus).eq(0))
+        .and(qa.bitwiseAnd(cloud).eq(0))
+        .and(qa.bitwiseAnd(shadow).eq(0));
+
+      return image.select(['SR_B.*']).updateMask(mask);
+    }
+
 		// Function to get min max of data
-    function stretch(image, bands, min=2, max=98, scale=100) {
+    function stretch (image, bands, min=2, max=98, scale=100) {
 			const geometry = image.geometry();
 
 			const reduce1 = image.select(bands[0]).reduceRegion({
