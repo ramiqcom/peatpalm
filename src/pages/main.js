@@ -8,6 +8,7 @@ import Select from 'react-select'
 // Map data
 let Map;
 let Data;
+let Image;
 
 // Input data
 let setCalculateDisabled;
@@ -107,7 +108,10 @@ function Calculate(){
     setCalculateDisabled = setDisabled;
   })
 
-  async function clickCalculate(){
+  function clickCalculate(){
+		// Delete all current image
+		Image.clearLayers();
+
 		const options = {
 			headers: { 'Content-Type': 'application/json'},
 			body: JSON.stringify(Data.toGeoJSON(0.001)),
@@ -116,9 +120,25 @@ function Calculate(){
 
     fetch('/api/simplify', options)
 			.then(response => response.json())
-			.then(geojson => Data.addLayer(L.geoJson(geojson)))
-			.catch(err => alert(err));
+			.then(geojson => {
 
+				const options = {
+					headers: { 'Content-Type': 'application/json' },
+					method: 'POST',
+					body: JSON.stringify(geojson)
+				}
+
+				return fetch('/api/image', options)
+					.then(response => response.json())
+					.catch(err => alert(err));
+			})
+			.then(data => data.urlFormat)
+			.then(url => L.tileLayer(url))
+			.then(tile => tile.addTo(Image))
+			.catch(err => alert(err));
+		
+		// Delete all AOI
+		Data.clearLayers()
   }
 
   return (
@@ -135,7 +155,7 @@ function LeafletMap() {
 
   useEffect(() => {
 		loadMap();
-  })
+  });
 
   return (
     <div id='map' />
@@ -144,42 +164,42 @@ function LeafletMap() {
 
 // Load leaflet map
 function loadMap(){
-	if (Map !== undefined){
-		Map.remove();
+	if (Map === undefined) {
+
+		Map = L.map("map", {
+			center: [-0.559, 101.897],
+			zoom: 6,
+		});
+	
+		L.tileLayer("https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png", {
+				attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+		}).addTo(Map);
+	
+		Data = L.featureGroup().addTo(Map);
+		Image = L.featureGroup().addTo(Map);
+	
+		Map.addControl(new L.Control.Draw({
+			edit: {
+				featureGroup: Data,
+			},
+			draw: {
+				marker: false,
+				polyline: false,
+				circlemarker: false
+			}
+		}));
+	
+		Map.on('draw:created', event => {
+			Data.addLayer(event.layer);
+			setCalculateDisabled(false);
+		});
+	
+		Map.on('draw:deleted', event => {
+			if (Object.keys(Data._layers).length) {
+					setCalculateDisabled(false);
+			} else {
+					setCalculateDisabled(true);
+			};
+		})
 	}
-
-	Map = L.map("map", {
-		center: [-0.559, 101.897],
-		zoom: 6,
-	});
-
-	L.tileLayer("https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png", {
-			attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-	}).addTo(Map);
-
-	Data = L.featureGroup().addTo(Map);
-
-	Map.addControl(new L.Control.Draw({
-		edit: {
-			featureGroup: Data,
-		},
-		draw: {
-			marker: false,
-			polyline: false,
-			circlemarker: false
-		}
-	}));
-
-	Map.on('draw:created', event => {
-		Data.addLayer(event.layer);
-		setCalculateDisabled(false);
-	});
-
-	Map.on('draw:deleted', event => {
-		if (Object.keys(Data._layers).length) {
-				setCalculateDisabled(false);
-		} else {
-				setCalculateDisabled(true);
-		};
-	})
 }
