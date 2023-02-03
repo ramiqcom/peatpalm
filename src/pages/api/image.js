@@ -1,10 +1,8 @@
 import ee from '@google/earthengine';
 
 export default function handler (req, res) {
-  const eeKey = JSON.parse(process.env.EE_KEY);
-
   ee.data.authenticateViaPrivateKey(
-    eeKey, () => {
+    JSON.parse(process.env.EE_KEY), () => {
       console.log('Authentication success');
       ee.initialize(
         null, 
