@@ -4,6 +4,7 @@ import Select from 'react-select';
 import Script from 'next/script';
 import * as turf from '@turf/turf';
 import { kml } from "@tmcw/togeojson";
+import { Chart } from "react-google-charts";
 
 // ** Global variables ** //
 
@@ -21,6 +22,9 @@ let GeoJSONFile;
 // App variables
 let setCalculateDisabled;
 let loadingScreen;
+let setChartCover;
+let setChartPop;
+let setChartGDP;
 
 // ** Global variables ** //
 
@@ -104,6 +108,113 @@ function Info(){
       <div className='section' style={{ display: loading, textAlign: 'center', fontSize: 'x-large', color: 'blue', fontWeight: 'bold' }}>
         Loading...
       </div>
+
+      <ChartInfo />
+
+    </div>
+  )
+}
+
+function ChartInfo() {
+  const [dataCover, setDataCover] = useState([
+    ['Year', 'Peatland', 'Palm Oil'],
+    ['1990', 0, 0],
+    ['1995', 0, 0],
+    ['2000', 0, 0],
+    ['2005', 0, 0],
+    ['2010', 0, 0],
+    ['2015', 0, 0],
+    ['2020', 0, 0],
+  ]);
+
+  const optionsCover = {
+    title: "Peatland vs Palm Oil Area (Ha)",
+    curveType: "function",
+    legend: { position: "bottom" },
+  };
+
+  const [dataPop, setDataPop] = useState([
+    ['Year', 'Population'],
+    ['1975', 0],
+    ['1990', 0],
+    ['2000', 0],
+    ['2015', 0]
+  ]);
+
+  const optionsPop = {
+    title: "Population",
+    curveType: "function",
+    legend: { position: "bottom" },
+  };
+
+  const [dataGDP, setDataGDP] = useState([
+    ['Year', 'GDP PPP'],
+    ['1990', 0],
+    ['1991', 0],
+    ['1992', 0],
+    ['1993', 0],
+    ['1994', 0],
+    ['1995', 0],
+    ['1996', 0],
+    ['1997', 0],
+    ['1998', 0],
+    ['1999', 0],
+    ['2000', 0],
+    ['2001', 0],
+    ['2002', 0],
+    ['2003', 0],
+    ['2004', 0],
+    ['2005', 0],
+    ['2006', 0],
+    ['2007', 0],
+    ['2008', 0],
+    ['2009', 0],
+    ['2010', 0],
+    ['2011', 0],
+    ['2012', 0],
+    ['2013', 0],
+    ['2014', 0],
+    ['2015', 0]
+  ]);
+
+  const optionsGDP = {
+    title: "GDP PPP (Million US Dollar)",
+    curveType: "function",
+    legend: { position: "bottom" },
+  };
+
+  useEffect(() => {
+    setChartCover = setDataCover;
+    setChartPop = setDataPop;
+    setChartGDP = setDataGDP;
+  })
+
+  return (
+    <div style={{ width: '100%', height: '100%', margin: '0' }}>
+
+      <Chart
+        chartType='LineChart'
+        width="100%"
+        height="30vh"
+        data={dataCover}
+        options={optionsCover}
+      />
+
+      <Chart
+        chartType='LineChart'
+        width="100%"
+        height="30vh"
+        data={dataPop}
+        options={optionsPop}
+      />
+
+      <Chart
+        chartType='LineChart'
+        width="100%"
+        height="30vh"
+        data={dataGDP}
+        options={optionsGDP}
+      />
 
     </div>
   )
@@ -303,8 +414,64 @@ function Calculate(){
       headers: { 'Content-Type': 'application/json'}
     }
 
-    fetch('/api/image', options)
+    fetch('/api/calculate', options)
       .then(response => response.json())
+      .then(result => {       
+        const peatpalm = result.peatpalm;
+        setChartCover([
+          ['Year', 'Peatland', 'Palm Oil'],
+          ['1990', peatpalm[0].peat, peatpalm[0].palm],
+          ['1995', peatpalm[1].peat, peatpalm[1].palm],
+          ['2000', peatpalm[2].peat, peatpalm[2].palm],
+          ['2005', peatpalm[3].peat, peatpalm[3].palm],
+          ['2010', peatpalm[4].peat, peatpalm[4].palm],
+          ['2015', peatpalm[5].peat, peatpalm[5].palm],
+          ['2020', peatpalm[6].peat, peatpalm[6].palm]
+        ])
+
+        const pop = result.pop;
+        setChartPop([
+          ['Year', 'Peatland'],
+          ['1975', pop[0].population],
+          ['1990', pop[1].population],
+          ['2000', pop[2].population],
+          ['2015', pop[3].population],
+        ])
+
+        const gdp = result.gdp;
+        setChartGDP([
+          ['Year', 'GDP PPP'],
+          ['1990', gdp[0].gdpPPP],
+          ['1991', gdp[1].gdpPPP],
+          ['1992', gdp[2].gdpPPP],
+          ['1993', gdp[3].gdpPPP],
+          ['1994', gdp[4].gdpPPP],
+          ['1995', gdp[5].gdpPPP],
+          ['1996', gdp[6].gdpPPP],
+          ['1997', gdp[7].gdpPPP],
+          ['1998', gdp[8].gdpPPP],
+          ['1999', gdp[9].gdpPPP],
+          ['2000', gdp[10].gdpPPP],
+          ['2001', gdp[11].gdpPPP],
+          ['2002', gdp[12].gdpPPP],
+          ['2003', gdp[13].gdpPPP],
+          ['2004', gdp[14].gdpPPP],
+          ['2005', gdp[15].gdpPPP],
+          ['2006', gdp[16].gdpPPP],
+          ['2007', gdp[17].gdpPPP],
+          ['2008', gdp[18].gdpPPP],
+          ['2009', gdp[19].gdpPPP],
+          ['2010', gdp[20].gdpPPP],
+          ['2011', gdp[21].gdpPPP],
+          ['2012', gdp[22].gdpPPP],
+          ['2013', gdp[23].gdpPPP],
+          ['2014', gdp[24].gdpPPP],
+          ['2015', gdp[25].gdpPPP]
+        ]);
+      })
+      .then(() => loadingScreen('none'))
+
+      /*
       .then(data => data.urlFormat)
       .then(url => {
         const tile = L.tileLayer(url);
@@ -313,10 +480,9 @@ function Calculate(){
         return tile;
       })
       .then(tile => tile.addTo(Image))
-      .catch(err => alert(err));
+      */
 
-		// Delete all AOI
-		Data.clearLayers()
+      .catch(err => alert(err));
   }
 
   return (
