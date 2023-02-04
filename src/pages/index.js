@@ -50,6 +50,16 @@ export default function App() {
   )
 }
 
+// Checkbox class
+function Checkbox(props) {
+  return (
+    <label>
+      <input type='checkbox' checked={props.checked} onChange={props.onChange} style={props.style} id={props.id} className='checkbox' />
+      {props.label}
+    </label>
+  );
+}
+
 // Main app
 function Main() {
   return (
@@ -220,12 +230,134 @@ function ChartInfo() {
   )
 }
 
+// Legend
+function Legend(){
+  const label = ['Dryland forest', 'Peat swamp forest', 'Mangrove forest',
+    'Cropland', 'Palm oil', 'Grassland', 'Peatland',
+    'Built-up', 'Bareland', 'Other woody vegetation', 'Water bodies'];
+
+  const palette = ['228B22', '808000','7B68EE', 
+    'FFD700', 'D2691E', '7CFC00', '20B2AA',
+    'DB7093', 'FFE4B5', '8FBC8F', '87CEFA'];
+
+  return (
+    <div className='section'>
+
+      <div style={{ fontSize: '12px', border: '1px solid black', padding: '10px', margin: '10px 0' }}>
+        <div style={{ fontSize: '15px', fontWeight: 'bold', textAlign: 'center',  margin: '0 0 10px' }}>
+          Land Cover
+        </div>
+        <div style={{ display: 'block' }}>
+          {
+            label.map((value, index) => 
+              <div style={{ margin: '2px auto', display: 'flex', alignItems: 'flex-start' }} key={index}>
+                <div style={{ width: '30px', height: '20px', background: '#' + palette[index] }} />
+                &nbsp; &nbsp;
+                {value}
+              </div>)
+          }
+        </div>
+      </div>
+
+    </div>
+  )
+}
+
+// Layer list
+function Layers(){
+  // LC 2020 variable
+  const [lc2020, setLc2020] = useState(true);
+  function lc2020Change(event){
+    const status = event.target.checked;
+    setLc2020(status);
+    const tile = Image.getLayers()[0];
+    console.log(tile);
+    status === true ? tile.setOpacity(1) : tile.setOpacity(0);
+  };
+
+  // LC 2015 variable
+  const [lc2015, setLc2015] = useState(false);
+  function lc2015Change(event){
+    const status = event.target.checked;
+    setLc2015(status);
+    const tile = Image.getLayers()[1];
+    status === true ? tile.setOpacity(1) : tile.setOpacity(0);
+  };
+
+  // LC 2010 variable
+  const [lc2010, setLc2010] = useState(false);
+  function lc2010Change(event){
+    const status = event.target.checked;
+    setLc2010(status);
+    const tile = Image.getLayers()[2];
+    status === true ? tile.setOpacity(1) : tile.setOpacity(0);
+  };
+
+  // LC 2010 variable
+  const [lc2005, setLc2005] = useState(false);
+  function lc2005Change(event){
+    const status = event.target.checked;
+    setLc2005(status);
+    const tile = Image.getLayers()[3];
+    status === true ? tile.setOpacity(1) : tile.setOpacity(0);
+  };
+
+  // LC 2010 variable
+  const [lc2000, setLc2000] = useState(false);
+  function lc2000Change(event){
+    const status = event.target.checked;
+    setLc2000(status);
+    const tile = Image.getLayers()[4];
+    status === true ? tile.setOpacity(1) : tile.setOpacity(0);
+  };
+
+  // LC 2010 variable
+  const [lc1995, setLc1995] = useState(false);
+  function lc1995Change(event){
+    const status = event.target.checked;
+    setLc1995(status);
+    const tile = Image.getLayers()[5];
+    status === true ? tile.setOpacity(1) : tile.setOpacity(0);
+  };
+
+  // LC 2010 variable
+  const [lc1990, setLc1990] = useState(false);
+  function lc1990Change(event){
+    const status = event.target.checked;
+    setLc1990(status);
+    const tile = Image.getLayers()[6];
+    status === true ? tile.setOpacity(1) : tile.setOpacity(0);
+  };
+
+  return (
+    <div className='section' style={{ border: '1px solid black' }}>
+
+      <div style={{ fontSize: '15px', fontWeight: 'bold', textAlign: 'center', margin: '0 0 10px' }}>
+        Layers
+      </div>
+
+      <div style={{ margin: '2%', display: 'flex', flexDirection: 'column'  }}>
+        <Checkbox label='Land Cover 2020' checked={lc2020} onChange={lc2020Change} />
+        <Checkbox label='Land Cover 2015' checked={lc2015} onChange={lc2015Change} />
+        <Checkbox label='Land Cover 2010' checked={lc2010} onChange={lc2010Change} />
+        <Checkbox label='Land Cover 2005' checked={lc2005} onChange={lc2005Change} />
+        <Checkbox label='Land Cover 2000' checked={lc2000} onChange={lc2000Change} />
+        <Checkbox label='Land Cover 1995' checked={lc1995} onChange={lc1995Change} />
+        <Checkbox label='Land Cover 1990' checked={lc1990} onChange={lc1990Change} />
+      </div>
+
+    </div>
+  )
+}
+
 // Control panel
 function Control(){
   return (
     <div id='control' className='side'>
 			<AOI />
 			<Calculate />
+      <Layers />
+      <Legend />
     </div>
   )
 }
@@ -286,6 +418,10 @@ function AOI(){
         <KMLUpload style={{ display: kmlShow }} />
         <GeoJSONUpload style={{ display: geojsonShow }} />
       </div>
+
+      <button className='input' id='removeAoi' onClick={removeAoi} style={{ color: 'red', margin: '5% auto' }}>
+        Remove AOI
+      </button>
 
     </div>
   )
@@ -487,7 +623,7 @@ function Calculate(){
 
   return (
     <div id='calculate' className='section'>
-      <button className='input' onClick={clickCalculate} disabled={disabled}>
+      <button className='input' onClick={clickCalculate} disabled={disabled} style={{ color: 'green' }}>
         Calculate
       </button>
     </div>
@@ -519,7 +655,18 @@ function mountMap () {
     }).addTo(Map);
   
     Data = L.geoJSON().addTo(Map);
-    Image = L.featureGroup().addTo(Map);
+
+    const tileUrls = [
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2020/{z}/{x}/{y}',
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2015/{z}/{x}/{y}',
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2010/{z}/{x}/{y}',
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2005/{z}/{x}/{y}',
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2000/{z}/{x}/{y}',
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_1995/{z}/{x}/{y}',
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_1990/{z}/{x}/{y}'
+    ].map((url, index) => index == 0 ? L.tileLayer(url, { minZoom: 0, maxZoom: 12 }) : L.tileLayer(url, { minZoom: 0, maxZoom: 12, opacity: 0 }));
+
+    Image = L.featureGroup(tileUrls).addTo(Map);
     
     Draw = new L.Control.Draw({
       edit: {
@@ -608,6 +755,7 @@ function toMap(geojson){
 // Remove all AOI function
 function removeAoi() {
   Data.clearLayers();
+  setCalculateDisabled(true);
 }
 
 // ** Functions ** //
