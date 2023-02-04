@@ -12,7 +12,8 @@
 }
 
 .side {
-    width: 15%;
+    width: 20%;
+    overflow: scroll;
 }
 
 .frame {
@@ -37,7 +38,7 @@
 }
 
 #map {
-    width: 70%;
+    width: 60%;
 }
 
 #home {

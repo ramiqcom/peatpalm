@@ -25,6 +25,8 @@ let loadingScreen;
 let setChartCover;
 let setChartPop;
 let setChartGDP;
+let setDownloadShow;
+let setDownloadLink;
 
 // ** Global variables ** //
 
@@ -107,9 +109,13 @@ function Home() {
 // Info panel
 function Info(){
   const [loading, setLoading] = useState('none');
+  const [downloadDisplay, setDownloadDisplay] = useState('none');
+  const [downloadUrl, setDownloadUrl] = useState(null);
 
   useEffect(() => {
     loadingScreen = setLoading;
+    setDownloadShow = setDownloadDisplay;
+    setDownloadLink = setDownloadUrl;
   })
 
   return (
@@ -117,6 +123,14 @@ function Info(){
 
       <div className='section' style={{ display: loading, textAlign: 'center', fontSize: 'x-large', color: 'blue', fontWeight: 'bold' }}>
         Loading...
+      </div>
+
+      <div className='section' style={{ display: downloadDisplay }}>
+        <a href={downloadUrl} download='data.csv'>
+          <button className='input'>
+            Download Data
+          </button>
+        </a>
       </div>
 
       <ChartInfo />
@@ -270,8 +284,7 @@ function Layers(){
   function lc2020Change(event){
     const status = event.target.checked;
     setLc2020(status);
-    const tile = Image.getLayers()[0];
-    console.log(tile);
+    const tile = Image.getLayers()[6];
     status === true ? tile.setOpacity(1) : tile.setOpacity(0);
   };
 
@@ -280,7 +293,7 @@ function Layers(){
   function lc2015Change(event){
     const status = event.target.checked;
     setLc2015(status);
-    const tile = Image.getLayers()[1];
+    const tile = Image.getLayers()[5];
     status === true ? tile.setOpacity(1) : tile.setOpacity(0);
   };
 
@@ -289,7 +302,7 @@ function Layers(){
   function lc2010Change(event){
     const status = event.target.checked;
     setLc2010(status);
-    const tile = Image.getLayers()[2];
+    const tile = Image.getLayers()[4];
     status === true ? tile.setOpacity(1) : tile.setOpacity(0);
   };
 
@@ -307,7 +320,7 @@ function Layers(){
   function lc2000Change(event){
     const status = event.target.checked;
     setLc2000(status);
-    const tile = Image.getLayers()[4];
+    const tile = Image.getLayers()[2];
     status === true ? tile.setOpacity(1) : tile.setOpacity(0);
   };
 
@@ -316,7 +329,7 @@ function Layers(){
   function lc1995Change(event){
     const status = event.target.checked;
     setLc1995(status);
-    const tile = Image.getLayers()[5];
+    const tile = Image.getLayers()[1];
     status === true ? tile.setOpacity(1) : tile.setOpacity(0);
   };
 
@@ -325,14 +338,14 @@ function Layers(){
   function lc1990Change(event){
     const status = event.target.checked;
     setLc1990(status);
-    const tile = Image.getLayers()[6];
+    const tile = Image.getLayers()[0];
     status === true ? tile.setOpacity(1) : tile.setOpacity(0);
   };
 
   return (
     <div className='section' style={{ border: '1px solid black' }}>
 
-      <div style={{ fontSize: '15px', fontWeight: 'bold', textAlign: 'center', margin: '0 0 10px' }}>
+      <div style={{ fontSize: '15px', fontWeight: 'bold', textAlign: 'center', margin: '2% auto' }}>
         Layers
       </div>
 
@@ -541,9 +554,6 @@ function Calculate(){
   function clickCalculate(){
     loadingScreen('block');
 
-		// Delete all current image
-		Image.clearLayers();
-
     const options = {
       method: 'POST',
       body: JSON.stringify(Data.toGeoJSON(false)),
@@ -567,7 +577,7 @@ function Calculate(){
 
         const pop = result.pop;
         setChartPop([
-          ['Year', 'Peatland'],
+          ['Year', 'Population'],
           ['1975', pop[0].population],
           ['1990', pop[1].population],
           ['2000', pop[2].population],
@@ -604,6 +614,44 @@ function Calculate(){
           ['2014', gdp[24].gdpPPP],
           ['2015', gdp[25].gdpPPP]
         ]);
+
+        const arrayTable = [
+          ['Year', 'GDP PPP', 'Population', 'Peatland', 'Palm Oil'],
+          ['1975', null, pop[0].population, null, null],
+          ['1990', gdp[0].gdpPPP, pop[1].population, peatpalm[0].peat, peatpalm[0].palm],
+          ['1991', gdp[1].gdpPPP, null, null, null],
+          ['1992', gdp[2].gdpPPP, null, null, null],
+          ['1993', gdp[3].gdpPPP, null, null, null],
+          ['1994', gdp[4].gdpPPP, null, null, null],
+          ['1995', gdp[5].gdpPPP, null, peatpalm[1].peat, peatpalm[1].palm],
+          ['1996', gdp[6].gdpPPP, null, null, null],
+          ['1997', gdp[7].gdpPPP, null, null, null],
+          ['1998', gdp[8].gdpPPP, null, null, null],
+          ['1999', gdp[9].gdpPPP, null, null, null],
+          ['2000', gdp[10].gdpPPP, pop[2].population, peatpalm[2].peat, peatpalm[2].palm],
+          ['2001', gdp[11].gdpPPP, null, null, null],
+          ['2002', gdp[12].gdpPPP, null, null, null],
+          ['2003', gdp[13].gdpPPP, null, null, null],
+          ['2004', gdp[14].gdpPPP, null, null, null],
+          ['2005', gdp[15].gdpPPP, null, peatpalm[3].peat, peatpalm[3].palm],
+          ['2006', gdp[16].gdpPPP, null, null, null],
+          ['2007', gdp[17].gdpPPP, null, null, null],
+          ['2008', gdp[18].gdpPPP, null, null, null],
+          ['2009', gdp[19].gdpPPP, null, null, null],
+          ['2010', gdp[20].gdpPPP, null, peatpalm[4].peat, peatpalm[4].palm],
+          ['2011', gdp[21].gdpPPP, null, null, null],
+          ['2012', gdp[22].gdpPPP, null, null, null],
+          ['2013', gdp[23].gdpPPP, null, null, null],
+          ['2014', gdp[24].gdpPPP, null, null, null],
+          ['2015', gdp[25].gdpPPP, pop[3].population, peatpalm[5].peat, peatpalm[5].palm],
+          ['2020', null, null, peatpalm[6].peat, peatpalm[6].palm]
+        ];
+
+        // Data Table (TODO)
+        let csv = arrayTable.map(arr => arr.toString()).join('\n');
+        let encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+        setDownloadShow('block');
+        setDownloadLink(encodedUri);
       })
       .then(() => loadingScreen('none'))
 
@@ -654,17 +702,21 @@ function mountMap () {
       attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
     }).addTo(Map);
   
-    Data = L.geoJSON().addTo(Map);
+    Data = L.geoJSON([], {
+      style: {
+        color: 'red'
+      }
+    }).addTo(Map);
 
-    const tileUrls = [
-      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2020/{z}/{x}/{y}',
-      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2015/{z}/{x}/{y}',
-      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2010/{z}/{x}/{y}',
-      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2005/{z}/{x}/{y}',
-      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2000/{z}/{x}/{y}',
+    const tileUrls = [ 
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_1990/{z}/{x}/{y}',
       'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_1995/{z}/{x}/{y}',
-      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_1990/{z}/{x}/{y}'
-    ].map((url, index) => index == 0 ? L.tileLayer(url, { minZoom: 0, maxZoom: 12 }) : L.tileLayer(url, { minZoom: 0, maxZoom: 12, opacity: 0 }));
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2000/{z}/{x}/{y}',
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2005/{z}/{x}/{y}',
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2010/{z}/{x}/{y}',
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2015/{z}/{x}/{y}',
+      'https://storage.googleapis.com/gee-maptile/asean/lc_sumatera_2020/{z}/{x}/{y}'
+    ].map((url, index) => index == 6 ? L.tileLayer(url, { minZoom: 0, maxZoom: 12 }) : L.tileLayer(url, { minZoom: 0, maxZoom: 12, opacity: 0 }));
 
     Image = L.featureGroup(tileUrls).addTo(Map);
     
@@ -687,7 +739,7 @@ function mountMap () {
     });
   
     Map.on('draw:deleted', event => {
-      if (Object.keys(Data._layers).length) {
+      if (Object.keys(Data.getLayers()).length) {
           setCalculateDisabled(false);
       } else {
           setCalculateDisabled(true);
@@ -708,9 +760,10 @@ function showSHP(){
 
   fetch('/api/shp', options)
     .then(response => response.json())
-    .then(geojson => toMap(geojson));
+    .then(geojson => toMap(geojson))
+    .then(() =>   setCalculateDisabled(false))
+    .catch(err => alert(err));
 
-  setCalculateDisabled(false);
 }
 
 // Show KML file to map
@@ -719,9 +772,8 @@ function showKML(){
     .then(text => new DOMParser().parseFromString(text, 'application/xml'))
     .then(xml => kml(xml))
     .then(geojson => toMap(geojson))
+    .then(() => setCalculateDisabled(false))
     .catch(err => alert(err));
-
-  setCalculateDisabled(false);
 }
 
 // Show KML file to map
@@ -729,9 +781,8 @@ async function showGeoJSON(){
   new Promise(resolve => resolve(GeoJSONFile.text()))
     .then(text => JSON.parse(text))
     .then(geojson => toMap(geojson))
+    .then(() => setCalculateDisabled(false))
     .catch(err => alert(err));
-  
-  setCalculateDisabled(false);
 }
 
 // Function to show added geo data to map

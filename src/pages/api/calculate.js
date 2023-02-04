@@ -41,12 +41,12 @@ export default function handler (req, res) {
 			const date = ee.Date(image.get('system:time_start'));
   
       const peatArea = ee.Number(image.eq(21).or(image.eq(22)).or(image.eq(70))
-        .reduceRegion(ee.Reducer.sum(), aoi, 30, 'EPSG:4326', null, true)
-        .get('LULC')).divide(10000).ceil();
+        .reduceRegion(ee.Reducer.sum(), aoi, 1000, 'EPSG:4326', null, true)
+        .get('LULC')).multiply(0.09).multiply(1111).ceil();
 
       const palmArea = ee.Number(image.eq(50)
-      .reduceRegion(ee.Reducer.sum(), aoi, 30, 'EPSG:4326', null, true)
-      .get('LULC')).divide(10000).ceil();
+      .reduceRegion(ee.Reducer.sum(), aoi, 1000, 'EPSG:4326', null, true)
+      .get('LULC')).multiply(0.09).multiply(1111).ceil();
       
       return ee.Dictionary({ peat: peatArea, palm: palmArea, date: date.millis(), index: index, year: date.get('year') });
 		}));
